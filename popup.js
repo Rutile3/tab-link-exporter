@@ -78,10 +78,10 @@ function isWebUrl(url) {
   return /^https?:\/\//i.test(url);
 }
 
-function normalizeTabs(tabs) {
+function normalizeTabs(tabs, webOnly) {
   return tabs
     .filter((tab) => typeof tab.url === "string" && tab.url.length > 0)
-    .filter((tab) => !webOnlyCheckbox.checked || isWebUrl(tab.url))
+    .filter((tab) => !webOnly || isWebUrl(tab.url))
     .sort((a, b) => {
       if (a.windowId !== b.windowId) {
         return a.windowId - b.windowId;
@@ -172,7 +172,7 @@ async function fetchTabs() {
   try {
     const query = scopeSelect.value === "current" ? { currentWindow: true } : {};
     const tabs = await chrome.tabs.query(query);
-    currentTabs = normalizeTabs(tabs);
+    currentTabs = normalizeTabs(tabs, webOnlyCheckbox.checked);
     render();
 
     if (currentTabs.length === 0) {
