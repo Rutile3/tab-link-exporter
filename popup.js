@@ -148,6 +148,9 @@ function formatTabs(tabs, format) {
     case "url":
       return formatUrl(tabs);
 
+    case "title-url":
+      return formatTitleUrl(tabs);
+
     case "markdown":
       return formatMarkdown(tabs);
 
@@ -160,9 +163,8 @@ function formatTabs(tabs, format) {
     case "json":
       return formatJson(tabs);
 
-    case "title-url":
     default:
-      return formatTitleUrl(tabs);
+      return formatUrl(tabs);
   }
 }
 
