@@ -1,13 +1,30 @@
 "use strict";
 
-const scopeSelect = document.querySelector("#scopeSelect");
-const formatSelect = document.querySelector("#formatSelect");
-const webOnlyCheckbox = document.querySelector("#webOnlyCheckbox");
-const resultText = document.querySelector("#resultText");
-const tabCount = document.querySelector("#tabCount");
-const statusMessage = document.querySelector("#statusMessage");
-const refreshButton = document.querySelector("#refreshButton");
-const copyButton = document.querySelector("#copyButton");
+/**
+ * 必須のDOM要素を取得する。
+ *
+ * @param {string} selector CSSセレクター
+ * @returns {Element} 取得したDOM要素
+ * @throws {Error} 要素が存在しない場合
+ */
+function getRequiredElement(selector) {
+  const element = document.querySelector(selector);
+
+  if (!element) {
+    throw new Error(`必須のDOM要素が見つかりません: ${selector}`);
+  }
+
+  return element;
+}
+
+const scopeSelect = getRequiredElement("#scopeSelect");
+const formatSelect = getRequiredElement("#formatSelect");
+const webOnlyCheckbox = getRequiredElement("#webOnlyCheckbox");
+const resultText = getRequiredElement("#resultText");
+const tabCount = getRequiredElement("#tabCount");
+const statusMessage = getRequiredElement("#statusMessage");
+const refreshButton = getRequiredElement("#refreshButton");
+const copyButton = getRequiredElement("#copyButton");
 
 /** @type {NormalizedTab[]} */
 let currentTabs = [];
