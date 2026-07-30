@@ -145,26 +145,13 @@ function formatJson(tabs) {
 
 function formatTabs(tabs, format) {
   switch (format) {
-    case "url":
-      return formatUrl(tabs);
-
-    case "title-url":
-      return formatTitleUrl(tabs);
-
-    case "markdown":
-      return formatMarkdown(tabs);
-
-    case "scrapbox":
-      return formatScrapbox(tabs);
-
-    case "csv":
-      return formatCsv(tabs);
-
-    case "json":
-      return formatJson(tabs);
-
-    default:
-      return formatUrl(tabs);
+    case "url": return formatUrl(tabs);
+    case "title-url": return formatTitleUrl(tabs);
+    case "markdown": return formatMarkdown(tabs);
+    case "scrapbox": return formatScrapbox(tabs);
+    case "csv": return formatCsv(tabs);
+    case "json": return formatJson(tabs);
+    default: return formatUrl(tabs);
   }
 }
 
