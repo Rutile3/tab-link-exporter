@@ -9,10 +9,38 @@ const statusMessage = document.querySelector("#statusMessage");
 const refreshButton = document.querySelector("#refreshButton");
 const copyButton = document.querySelector("#copyButton");
 
+/** @type {NormalizedTab[]} */
 let currentTabs = [];
 
 const SETTINGS_KEY = "tabLinkExporterSettings";
 
+/**
+ * Chromeから取得したタブ情報。
+ *
+ * @typedef {Object} ChromeTab
+ * @property {string} [title] タブのタイトル
+ * @property {string} [url] タブのURL
+ * @property {boolean} [pinned] 固定タブかどうか
+ * @property {number} windowId ウィンドウID
+ * @property {number} index ウィンドウ内のタブ位置
+ */
+
+/**
+ * 出力処理で使用する正規化済みのタブ情報。
+ *
+ * @typedef {Object} NormalizedTab
+ * @property {string} title タブのタイトル
+ * @property {string} url タブのURL
+ * @property {boolean} pinned 固定タブかどうか
+ * @property {number} windowId ウィンドウID
+ * @property {number} index ウィンドウ内のタブ位置
+ */
+
+/**
+ * 保存済みの設定を読み込み、画面へ反映する。
+ *
+ * @returns {void}
+ */
 function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
@@ -40,6 +68,11 @@ function loadSettings() {
   }
 }
 
+/**
+ * 現在の画面設定をローカルストレージへ保存する。
+ *
+ * @returns {void}
+ */
 function saveSettings() {
   localStorage.setItem(
     SETTINGS_KEY,
@@ -51,11 +84,24 @@ function saveSettings() {
   );
 }
 
+/**
+ * ステータスメッセージを画面へ表示する。
+ *
+ * @param {string} message 表示するメッセージ
+ * @param {boolean} [isError=false] エラー表示にするかどうか
+ * @returns {void}
+ */
 function setStatus(message, isError = false) {
   statusMessage.textContent = message;
   statusMessage.classList.toggle("error", isError);
 }
 
+/**
+ * 例外値から表示用のエラーメッセージを取得する。
+ *
+ * @param {unknown} error 例外値
+ * @returns {string} 表示用のエラーメッセージ
+ */
 function getErrorMessage(error) {
   if (
     error &&
@@ -74,10 +120,23 @@ function getErrorMessage(error) {
   return "不明なエラーが発生しました。";
 }
 
+/**
+ * URLがHTTPまたはHTTPSかどうかを判定する。
+ *
+ * @param {string} url 判定するURL
+ * @returns {boolean} WebページのURLの場合はtrue
+ */
 function isWebUrl(url) {
   return /^https?:\/\//i.test(url);
 }
 
+/**
+ * タブを絞り込み、ウィンドウとタブ位置の順に並べて正規化する。
+ *
+ * @param {ChromeTab[]} tabs Chromeから取得したタブ情報
+ * @param {boolean} webOnly Webページのタブだけに絞り込むかどうか
+ * @returns {NormalizedTab[]} 正規化済みのタブ情報
+ */
 function normalizeTabs(tabs, webOnly) {
   return tabs
     .filter((tab) => typeof tab.url === "string" && tab.url.length > 0)
@@ -97,33 +156,75 @@ function normalizeTabs(tabs, webOnly) {
     }));
 }
 
+/**
+ * Markdownのリンクテキストで特別扱いされる文字をエスケープする。
+ *
+ * @param {string} text エスケープする文字列
+ * @returns {string} エスケープ済みの文字列
+ */
 function escapeMarkdown(text) {
   return text.replace(/([\\[\]])/g, "\\$1");
 }
 
+/**
+ * 値をCSVのフィールドとして二重引用符で囲み、引用符をエスケープする。
+ *
+ * @param {unknown} value CSVへ出力する値
+ * @returns {string} CSV用にエスケープした文字列
+ */
 function escapeCsv(value) {
   const text = String(value ?? "");
   return `"${text.replace(/"/g, '""')}"`;
 }
 
+/**
+ * タブをURLのみの形式へ整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @returns {string} 整形済みの文字列
+ */
 function formatUrl(tabs) {
   return tabs.map((tab) => tab.url).join("\n");
 }
 
+/**
+ * タブをタイトルとURLの形式へ整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @returns {string} 整形済みの文字列
+ */
 function formatTitleUrl(tabs) {
   return tabs.map((tab) => `${tab.title}\n${tab.url}`).join("\n\n");
 }
 
+/**
+ * タブをMarkdownのリンク一覧へ整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @returns {string} 整形済みの文字列
+ */
 function formatMarkdown(tabs) {
   return tabs
     .map((tab) => `- [${escapeMarkdown(tab.title)}](${tab.url})`)
     .join("\n");
 }
 
+/**
+ * タブをScrapbox（現Cosense）のリンク一覧へ整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @returns {string} 整形済みの文字列
+ */
 function formatScrapbox(tabs) {
   return tabs.map((tab) => `[${tab.url} ${tab.title}]`).join("\n");
 }
 
+/**
+ * タブをヘッダー付きのCSVへ整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @returns {string} CRLF区切りのCSV文字列
+ */
 function formatCsv(tabs) {
   const header = ["title", "url", "pinned", "windowId", "index"];
   const rows = tabs.map((tab) => [
@@ -139,10 +240,23 @@ function formatCsv(tabs) {
     .join("\r\n");
 }
 
+/**
+ * タブをインデント付きのJSONへ整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @returns {string} JSON文字列
+ */
 function formatJson(tabs) {
   return JSON.stringify(tabs, null, 2);
 }
 
+/**
+ * 指定された出力形式に応じてタブを整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @param {string} format 出力形式
+ * @returns {string} 整形済みの文字列
+ */
 function formatTabs(tabs, format) {
   switch (format) {
     case "url": return formatUrl(tabs);
@@ -155,6 +269,11 @@ function formatTabs(tabs, format) {
   }
 }
 
+/**
+ * 現在のタブ情報を選択中の形式で画面へ描画する。
+ *
+ * @returns {void}
+ */
 function render() {
   const output = formatTabs(currentTabs, formatSelect.value);
   resultText.value = output;
@@ -164,6 +283,11 @@ function render() {
   copyButton.disabled = !hasResults;
 }
 
+/**
+ * 選択中の取得条件でChromeのタブを取得し、画面を更新する。
+ *
+ * @returns {Promise<void>}
+ */
 async function fetchTabs() {
   saveSettings();
   setStatus("取得中…");
@@ -189,6 +313,11 @@ async function fetchTabs() {
   }
 }
 
+/**
+ * 現在の出力結果をクリップボードへコピーする。
+ *
+ * @returns {Promise<void>}
+ */
 async function copyResult() {
   if (!resultText.value) {
     return;
@@ -211,12 +340,22 @@ async function copyResult() {
   }
 }
 
+/**
+ * 出力形式の変更を保存し、取得済みのタブを再整形する。
+ *
+ * @returns {void}
+ */
 function handleFormatChange() {
   saveSettings();
   render();
   setStatus(`${currentTabs.length}件を再整形しました。`);
 }
 
+/**
+ * イベントリスナーを登録し、保存済み設定とタブ一覧を読み込む。
+ *
+ * @returns {void}
+ */
 function initialize() {
   scopeSelect.addEventListener("change", fetchTabs);
   webOnlyCheckbox.addEventListener("change", fetchTabs);
