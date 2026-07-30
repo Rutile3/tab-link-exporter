@@ -56,6 +56,24 @@ function setStatus(message, isError = false) {
   statusMessage.classList.toggle("error", isError);
 }
 
+function getErrorMessage(error) {
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string" &&
+    error.message.length > 0
+  ) {
+    return error.message;
+  }
+
+  if (typeof error === "string" && error.length > 0) {
+    return error;
+  }
+
+  return "不明なエラーが発生しました。";
+}
+
 function isWebUrl(url) {
   return /^https?:\/\//i.test(url);
 }
@@ -152,7 +170,7 @@ async function fetchTabs() {
   } catch (error) {
     currentTabs = [];
     render();
-    setStatus(`取得に失敗しました: ${error.message}`, true);
+    setStatus(`取得に失敗しました: ${getErrorMessage(error)}`, true);
   } finally {
     refreshButton.disabled = false;
   }
@@ -172,7 +190,9 @@ async function copyResult() {
 
     const copied = document.execCommand("copy");
     setStatus(
-      copied ? "クリップボードにコピーしました。" : `コピーに失敗しました: ${error.message}`,
+      copied
+        ? "クリップボードにコピーしました。"
+        : `コピーに失敗しました: ${getErrorMessage(error)}`,
       !copied
     );
   }
