@@ -171,13 +171,11 @@ input:focus-visible {
 }
 
 .actions {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 9px;
   margin-top: 12px;
 }
 
 .actions button {
+  width: 100%;
   min-height: 38px;
   border-radius: 8px;
   cursor: pointer;
@@ -192,16 +190,6 @@ input:focus-visible {
 
 .primary:hover {
   background: var(--accent-hover);
-}
-
-.secondary {
-  border: 1px solid var(--border);
-  background: var(--panel);
-  color: var(--text);
-}
-
-.secondary:hover {
-  filter: brightness(0.97);
 }
 
 .actions button:disabled {

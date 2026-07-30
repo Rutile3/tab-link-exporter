@@ -8,7 +8,6 @@ const tabCount = document.querySelector("#tabCount");
 const statusMessage = document.querySelector("#statusMessage");
 const refreshButton = document.querySelector("#refreshButton");
 const copyButton = document.querySelector("#copyButton");
-const downloadButton = document.querySelector("#downloadButton");
 
 let currentTabs = [];
 
@@ -122,7 +121,6 @@ function render() {
 
   const hasResults = currentTabs.length > 0;
   copyButton.disabled = !hasResults;
-  downloadButton.disabled = !hasResults;
 }
 
 async function fetchTabs() {
@@ -170,51 +168,6 @@ async function copyResult() {
   }
 }
 
-function getDownloadInfo() {
-  const format = formatSelect.value;
-
-  if (format === "csv") {
-    return { extension: "csv", mime: "text/csv;charset=utf-8", bom: "\uFEFF" };
-  }
-
-  if (format === "json") {
-    return { extension: "json", mime: "application/json;charset=utf-8", bom: "" };
-  }
-
-  if (format === "markdown") {
-    return { extension: "md", mime: "text/markdown;charset=utf-8", bom: "\uFEFF" };
-  }
-
-  return { extension: "txt", mime: "text/plain;charset=utf-8", bom: "\uFEFF" };
-}
-
-function downloadResult() {
-  if (!resultText.value) {
-    return;
-  }
-
-  try {
-    const { extension, mime, bom } = getDownloadInfo();
-    const timestamp = new Date()
-      .toLocaleString("sv-SE")
-      .replace(" ", "_")
-      .replaceAll(":", "");
-    const filename = `tab-links_${timestamp}.${extension}`;
-
-    const blob = new Blob([bom, resultText.value], { type: mime });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = filename;
-    anchor.click();
-
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setStatus(`${filename} を保存しました。`);
-  } catch (error) {
-    setStatus(`保存に失敗しました: ${error.message}`, true);
-  }
-}
-
 scopeSelect.addEventListener("change", fetchTabs);
 webOnlyCheckbox.addEventListener("change", fetchTabs);
 
@@ -226,7 +179,6 @@ formatSelect.addEventListener("change", () => {
 
 refreshButton.addEventListener("click", fetchTabs);
 copyButton.addEventListener("click", copyResult);
-downloadButton.addEventListener("click", downloadResult);
 
 loadSettings();
 fetchTabs();
