@@ -37,12 +37,22 @@ const SETTINGS_KEY = "tabLinkExporterSettings";
  */
 
 /**
+ * 拡張機能の画面設定。
+ *
+ * @typedef {Object} Settings
+ * @property {"current"|"all"} scope タブの取得範囲
+ * @property {"url"|"title-url"|"markdown"|"scrapbox"|"csv"|"json"} format 出力形式
+ * @property {boolean} webOnly Webページだけに絞り込むかどうか
+ */
+
+/**
  * 保存済みの設定を読み込み、画面へ反映する。
  *
  * @returns {void}
  */
 function loadSettings() {
   try {
+    /** @type {Partial<Settings>} */
     const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
     if (saved.scope === "current" || saved.scope === "all") {
       scopeSelect.value = saved.scope;
@@ -69,6 +79,19 @@ function loadSettings() {
 }
 
 /**
+ * 現在の画面設定を取得する。
+ *
+ * @returns {Settings} 現在の画面設定
+ */
+function getCurrentSettings() {
+  return {
+    scope: scopeSelect.value,
+    format: formatSelect.value,
+    webOnly: webOnlyCheckbox.checked
+  };
+}
+
+/**
  * 現在の画面設定をローカルストレージへ保存する。
  *
  * @returns {void}
@@ -76,11 +99,7 @@ function loadSettings() {
 function saveSettings() {
   localStorage.setItem(
     SETTINGS_KEY,
-    JSON.stringify({
-      scope: scopeSelect.value,
-      format: formatSelect.value,
-      webOnly: webOnlyCheckbox.checked
-    })
+    JSON.stringify(getCurrentSettings())
   );
 }
 
