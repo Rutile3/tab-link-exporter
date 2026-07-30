@@ -52,6 +52,18 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-package.
 
 `dist/` は `.gitignore` に登録されているため、生成したZIPはGitの監視対象になりません。
 
+## 自動テスト
+
+Node.js標準のテスト機能を使用し、リポジトリのルートから次のコマンドで実行します。外部パッケージのインストールは不要です。
+
+```powershell
+node --test .\tests\popup.test.js
+```
+
+テストでは、各出力形式、タブ情報の正規化、設定の保存と復元、必須DOM要素、タブ取得結果の描画、クリップボードへのコピーを確認します。
+
+`tests/` は開発用ファイルであり、配布用ZIPには含まれません。配布用ZIPを作成する前に、自動テストとChrome上での手動確認を実施してください。
+
 ## Chrome Web Store用アセット
 
 Chrome Web Storeの掲載に使用する画像は `store-assets/` で管理しています。
@@ -84,6 +96,8 @@ tab-link-exporter/
 ├─ README.md
 ├─ scripts/
 │  └─ build-package.ps1
+├─ tests/
+│  └─ popup.test.js
 ├─ icons/
 │  ├─ icon16.png
 │  ├─ icon32.png
@@ -108,4 +122,4 @@ tab-link-exporter/
 
 ## バージョン
 
-- 1.3.13
+- 1.3.14
