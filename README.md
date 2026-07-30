@@ -10,6 +10,7 @@ Chromeで現在開いているタブのタイトルとURLを一覧化する、Ma
   - URLのみ
   - タイトル + URL
   - Markdown
+  - Scrapbox（現Cosense）
   - CSV
   - JSON
 - クリップボードへコピー
@@ -60,4 +61,4 @@ tab-link-exporter/
 
 ## バージョン
 
-- 1.1.1
+- 1.2.0

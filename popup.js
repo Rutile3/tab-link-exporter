@@ -20,7 +20,14 @@ function loadSettings() {
       scopeSelect.value = saved.scope;
     }
 
-    const formats = new Set(["title-url", "url", "markdown", "csv", "json"]);
+    const formats = new Set([
+      "title-url",
+      "url",
+      "markdown",
+      "scrapbox",
+      "csv",
+      "json"
+    ]);
     if (formats.has(saved.format)) {
       formatSelect.value = saved.format;
     }
@@ -90,6 +97,9 @@ function formatTabs(tabs, format) {
       return tabs
         .map((tab) => `- [${escapeMarkdown(tab.title)}](${tab.url})`)
         .join("\n");
+
+    case "scrapbox":
+      return tabs.map((tab) => `[${tab.url} ${tab.title}]`).join("\n");
 
     case "csv": {
       const header = ["title", "url", "pinned", "windowId", "index"];
