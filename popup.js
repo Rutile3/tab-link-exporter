@@ -333,6 +333,17 @@ async function fetchTabs() {
 }
 
 /**
+ * execCommandを使って出力結果をクリップボードへコピーする。
+ *
+ * @returns {boolean} コピーに成功した場合はtrue
+ */
+function copyWithExecCommand() {
+  resultText.focus();
+  resultText.select();
+  return document.execCommand("copy");
+}
+
+/**
  * 現在の出力結果をクリップボードへコピーする。
  *
  * @returns {Promise<void>}
@@ -346,10 +357,7 @@ async function copyResult() {
     await navigator.clipboard.writeText(resultText.value);
     setStatus("クリップボードにコピーしました。");
   } catch (error) {
-    resultText.focus();
-    resultText.select();
-
-    const copied = document.execCommand("copy");
+    const copied = copyWithExecCommand();
     setStatus(
       copied
         ? "クリップボードにコピーしました。"
