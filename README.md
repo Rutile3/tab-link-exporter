@@ -7,8 +7,8 @@ Chromeで現在開いているタブのタイトルとURLを一覧化する、Ma
 - 現在のウィンドウ、またはすべてのChromeウィンドウからタブを取得
 - HTTP / HTTPSのWebページだけに絞り込み
 - 次の形式で出力
-  - タイトル + URL
   - URLのみ
+  - タイトル + URL
   - Markdown
   - CSV
   - JSON
@@ -60,4 +60,4 @@ tab-link-exporter/
 
 ## バージョン
 
-- 1.1.0
+- 1.1.1
