@@ -106,39 +106,63 @@ function escapeCsv(value) {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
+function formatUrl(tabs) {
+  return tabs.map((tab) => tab.url).join("\n");
+}
+
+function formatTitleUrl(tabs) {
+  return tabs.map((tab) => `${tab.title}\n${tab.url}`).join("\n\n");
+}
+
+function formatMarkdown(tabs) {
+  return tabs
+    .map((tab) => `- [${escapeMarkdown(tab.title)}](${tab.url})`)
+    .join("\n");
+}
+
+function formatScrapbox(tabs) {
+  return tabs.map((tab) => `[${tab.url} ${tab.title}]`).join("\n");
+}
+
+function formatCsv(tabs) {
+  const header = ["title", "url", "pinned", "windowId", "index"];
+  const rows = tabs.map((tab) => [
+    tab.title,
+    tab.url,
+    tab.pinned,
+    tab.windowId,
+    tab.index
+  ]);
+
+  return [header, ...rows]
+    .map((row) => row.map(escapeCsv).join(","))
+    .join("\r\n");
+}
+
+function formatJson(tabs) {
+  return JSON.stringify(tabs, null, 2);
+}
+
 function formatTabs(tabs, format) {
   switch (format) {
     case "url":
-      return tabs.map((tab) => tab.url).join("\n");
+      return formatUrl(tabs);
 
     case "markdown":
-      return tabs
-        .map((tab) => `- [${escapeMarkdown(tab.title)}](${tab.url})`)
-        .join("\n");
+      return formatMarkdown(tabs);
 
     case "scrapbox":
-      return tabs.map((tab) => `[${tab.url} ${tab.title}]`).join("\n");
+      return formatScrapbox(tabs);
 
-    case "csv": {
-      const header = ["title", "url", "pinned", "windowId", "index"];
-      const rows = tabs.map((tab) => [
-        tab.title,
-        tab.url,
-        tab.pinned,
-        tab.windowId,
-        tab.index
-      ]);
-      return [header, ...rows]
-        .map((row) => row.map(escapeCsv).join(","))
-        .join("\r\n");
-    }
+    case "csv":
+      return formatCsv(tabs);
 
     case "json":
-      return JSON.stringify(tabs, null, 2);
+      return formatJson(tabs);
 
     case "title-url":
     default:
-      return tabs.map((tab) => `${tab.title}\n${tab.url}`).join("\n\n");
+      return formatTitleUrl(tabs);
   }
 }
 
