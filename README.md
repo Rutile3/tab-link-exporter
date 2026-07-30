@@ -15,6 +15,8 @@ Chromeで現在開いているタブのタイトルとURLを一覧化する、Ma
   - JSON
 - クリップボードへコピー
 - 最後に使用した設定をローカルに保存
+- [Googleフォーム](https://docs.google.com/forms/d/e/1FAIpQLSch4KYJ68lTU_qY-siJ0CaKtTxbBTfoRv2wZa7h2bpbm5bTTg/viewform?usp=pp_url&entry.1006266992=Tab+Link+Exporter)からフィードバックを送信
+- [OFUSE](https://ofuse.me/rutile3)から開発者を応援
 
 ## インストール方法
 
@@ -61,4 +63,4 @@ tab-link-exporter/
 
 ## バージョン
 
-- 1.2.0
+- 1.3.0
