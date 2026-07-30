@@ -1,5 +1,12 @@
 # 追加仕様履歴
 
+## 1.3.2
+
+- Chrome Web Storeに掲載するアイコン、スクリーンショット、プロモーションタイルを `store-assets/` に追加しました。
+- スクリーンショットとプロモーションタイルをChrome Web Storeの画像要件に合わせて作成しました。
+- リポジトリ直下に `PRIVACY.md` を追加し、タブ情報、ローカル設定、外部リンクの取り扱いとLimited Use要件への準拠を明記しました。
+- READMEにChrome Web Store用アセットとプライバシーポリシーの説明を追加しました。
+
 ## 1.3.1
 
 - PowerShellで配布用ZIPを生成する `scripts/build-package.ps1` を追加しました。
