@@ -211,16 +211,16 @@ async function copyResult() {
   }
 }
 
+function handleFormatChange() {
+  saveSettings();
+  render();
+  setStatus(`${currentTabs.length}件を再整形しました。`);
+}
+
 function initialize() {
   scopeSelect.addEventListener("change", fetchTabs);
   webOnlyCheckbox.addEventListener("change", fetchTabs);
-
-  formatSelect.addEventListener("change", () => {
-    saveSettings();
-    render();
-    setStatus(`${currentTabs.length}件を再整形しました。`);
-  });
-
+  formatSelect.addEventListener("change", handleFormatChange);
   refreshButton.addEventListener("click", fetchTabs);
   copyButton.addEventListener("click", copyResult);
 
