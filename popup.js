@@ -318,11 +318,11 @@ async function fetchTabs() {
     currentTabs = normalizeTabs(tabs, webOnlyCheckbox.checked);
     render();
 
-    if (currentTabs.length === 0) {
-      setStatus("条件に一致するタブがありません。");
-    } else {
-      setStatus(`${currentTabs.length}件のタブを取得しました。`);
-    }
+    setStatus(
+      currentTabs.length === 0
+        ? "条件に一致するタブがありません。"
+        : `${currentTabs.length}件のタブを取得しました。`
+    );
   } catch (error) {
     currentTabs = [];
     render();
