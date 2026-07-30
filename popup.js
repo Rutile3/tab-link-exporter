@@ -224,17 +224,21 @@ async function copyResult() {
   }
 }
 
-scopeSelect.addEventListener("change", fetchTabs);
-webOnlyCheckbox.addEventListener("change", fetchTabs);
+function initialize() {
+  scopeSelect.addEventListener("change", fetchTabs);
+  webOnlyCheckbox.addEventListener("change", fetchTabs);
 
-formatSelect.addEventListener("change", () => {
-  saveSettings();
-  render();
-  setStatus(`${currentTabs.length}件を再整形しました。`);
-});
+  formatSelect.addEventListener("change", () => {
+    saveSettings();
+    render();
+    setStatus(`${currentTabs.length}件を再整形しました。`);
+  });
 
-refreshButton.addEventListener("click", fetchTabs);
-copyButton.addEventListener("click", copyResult);
+  refreshButton.addEventListener("click", fetchTabs);
+  copyButton.addEventListener("click", copyResult);
 
-loadSettings();
-fetchTabs();
+  loadSettings();
+  fetchTabs();
+}
+
+initialize();
