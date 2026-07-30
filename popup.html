@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tab Link Exporter</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>Tab Link Exporter</h1>
+        <p>開いているタブのリンクを一覧化します。</p>
+      </div>
+      <button id="refreshButton" class="icon-button" type="button" title="再取得" aria-label="タブ一覧を再取得">
+        ↻
+      </button>
+    </header>
+
+    <section class="settings" aria-label="出力設定">
+      <label class="field">
+        <span>取得範囲</span>
+        <select id="scopeSelect">
+          <option value="current">現在のウィンドウ</option>
+          <option value="all">すべてのウィンドウ</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>出力形式</span>
+        <select id="formatSelect">
+          <option value="title-url">タイトル + URL</option>
+          <option value="url">URLのみ</option>
+          <option value="markdown">Markdown</option>
+          <option value="csv">CSV</option>
+          <option value="json">JSON</option>
+        </select>
+      </label>
+
+      <label class="checkbox">
+        <input id="webOnlyCheckbox" type="checkbox" checked>
+        <span>Webページのみ（http / https）</span>
+      </label>
+    </section>
+
+    <section class="result-section">
+      <div class="result-heading">
+        <label for="resultText">取得結果</label>
+        <span id="tabCount" class="count">0件</span>
+      </div>
+      <textarea id="resultText" readonly spellcheck="false" placeholder="タブの一覧がここに表示されます"></textarea>
+    </section>
+
+    <div class="actions">
+      <button id="copyButton" class="primary" type="button">クリップボードにコピー</button>
+      <button id="downloadButton" class="secondary" type="button">ファイル保存</button>
+    </div>
+
+    <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
