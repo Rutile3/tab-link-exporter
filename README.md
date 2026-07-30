@@ -34,6 +34,24 @@ Chromeで現在開いているタブのタイトルとURLを一覧化する、Ma
 3. 必要に応じて「Webページのみ」のチェックを切り替えます。
 4. 「クリップボードにコピー」を押します。
 
+## 配布用ZIPの作成
+
+PowerShellでリポジトリのルートから次のコマンドを実行します。
+
+```powershell
+.\scripts\build-package.ps1
+```
+
+実行ポリシーによってスクリプトを実行できない場合は、次のコマンドを使用します。
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build-package.ps1
+```
+
+スクリプトは `manifest.json` からバージョン番号を取得し、配布に必要なファイルだけを格納した `dist/tab-link-exporter-<バージョン>.zip` を生成します。ZIP直下のファイル構成も自動で検証します。
+
+`dist/` は `.gitignore` に登録されているため、生成したZIPはGitの監視対象になりません。
+
 ## 権限
 
 この拡張機能は `tabs` 権限を使用します。これは、開いているタブのタイトルとURLを取得するために必要です。
@@ -49,6 +67,8 @@ tab-link-exporter/
 ├─ popup.css
 ├─ popup.js
 ├─ README.md
+├─ scripts/
+│  └─ build-package.ps1
 └─ icons/
    ├─ icon16.png
    ├─ icon32.png
@@ -63,4 +83,4 @@ tab-link-exporter/
 
 ## バージョン
 
-- 1.3.0
+- 1.3.1
