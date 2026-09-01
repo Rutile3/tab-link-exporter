@@ -19,7 +19,9 @@ const REQUIRED_SELECTORS = [
   "#tabCount",
   "#statusMessage",
   "#refreshButton",
-  "#copyButton"
+  "#copyButton",
+  "#customTemplateField",
+  "#customTemplateInput"
 ];
 
 function createMockElement(selector) {
@@ -33,7 +35,9 @@ function createMockElement(selector) {
     disabled: false,
     textContent: "",
     errorClass: false,
+    hidden: false,
     listeners: [],
+    classes: new Set(),
     focusCalls: 0,
     selectCalls: 0,
     addEventListener(type, handler) {
@@ -48,8 +52,19 @@ function createMockElement(selector) {
   };
 
   element.classList = {
-    toggle(_name, value) {
-      element.errorClass = value;
+    toggle(name, value) {
+      if (value) {
+        element.classes.add(name);
+      } else {
+        element.classes.delete(name);
+      }
+
+      if (name === "error") {
+        element.errorClass = value;
+      }
+    },
+    contains(name) {
+      return element.classes.has(name);
     }
   };
 
@@ -175,25 +190,102 @@ test("有効な保存設定だけを画面へ反映する", () => {
     savedSettings: {
       scope: "all",
       format: "markdown",
-      webOnly: false
+      webOnly: false,
+      customTemplate: "- {{title}}: {{url}}"
     }
   });
 
   assert.equal(valid.getElement("#scopeSelect").value, "all");
   assert.equal(valid.getElement("#formatSelect").value, "markdown");
   assert.equal(valid.getElement("#webOnlyCheckbox").checked, false);
+  assert.equal(
+    valid.getElement("#customTemplateInput").value,
+    "- {{title}}: {{url}}"
+  );
 
   const invalid = createPopupContext({
     savedSettings: {
       scope: "invalid",
       format: "text",
-      webOnly: "yes"
+      webOnly: "yes",
+      customTemplate: 123
     }
   });
 
   assert.equal(invalid.getElement("#scopeSelect").value, "current");
   assert.equal(invalid.getElement("#formatSelect").value, "url");
   assert.equal(invalid.getElement("#webOnlyCheckbox").checked, true);
+  assert.equal(
+    invalid.getElement("#customTemplateInput").value,
+    "{{title}}\n{{url}}"
+  );
+});
+
+test("カスタム形式とテンプレートを保存設定から復元する", async () => {
+  const popup = createPopupContext({
+    savedSettings: {
+      scope: "current",
+      format: "custom",
+      webOnly: true,
+      customTemplate: "[{{url}} {{title}}]"
+    },
+    tabs: [createTabs()[0]]
+  });
+
+  await popup.settle();
+
+  assert.equal(popup.getElement("#formatSelect").value, "custom");
+  assert.equal(
+    popup.getElement("#customTemplateInput").value,
+    "[{{url}} {{title}}]"
+  );
+  assert.equal(
+    popup.getElement("#customTemplateField").hidden,
+    false
+  );
+  assert.equal(
+    popup.getElement("#resultText").value,
+    "[https://example.com Example]"
+  );
+});
+
+test("旧バージョンの保存設定では既定テンプレートを使用する", () => {
+  const popup = createPopupContext({
+    savedSettings: {
+      scope: "all",
+      format: "url",
+      webOnly: false
+    }
+  });
+
+  assert.equal(
+    popup.getElement("#customTemplateInput").value,
+    "{{title}}\n{{url}}"
+  );
+});
+
+test("保存された空のカスタムテンプレートをそのまま復元する", async () => {
+  const popup = createPopupContext({
+    savedSettings: {
+      scope: "current",
+      format: "custom",
+      webOnly: true,
+      customTemplate: ""
+    },
+    tabs: [createTabs()[0]]
+  });
+
+  await popup.settle();
+
+  assert.equal(
+    popup.getElement("#customTemplateInput").value,
+    ""
+  );
+  assert.equal(popup.getElement("#resultText").value, "");
+  assert.equal(
+    popup.getElement("#copyButton").disabled,
+    true
+  );
 });
 
 test("現在の画面設定を生成して保存する", () => {
@@ -202,6 +294,7 @@ test("現在の画面設定を生成して保存する", () => {
   popup.getElement("#scopeSelect").value = "all";
   popup.getElement("#formatSelect").value = "json";
   popup.getElement("#webOnlyCheckbox").checked = false;
+  popup.getElement("#customTemplateInput").value = "{{url}}";
 
   const settings = JSON.parse(
     JSON.stringify(popup.context.getCurrentSettings())
@@ -210,7 +303,8 @@ test("現在の画面設定を生成して保存する", () => {
   assert.deepEqual(settings, {
     scope: "all",
     format: "json",
-    webOnly: false
+    webOnly: false,
+    customTemplate: "{{url}}"
   });
 
   popup.context.saveSettings();
@@ -317,6 +411,163 @@ test("不明な出力形式はURL形式へフォールバックする", () => {
   assert.equal(
     context.formatTabs(tabs, "unknown"),
     context.formatUrl(tabs)
+  );
+});
+
+test("カスタム形式でタイトルとURLを置換する", () => {
+  const { context } = createPopupContext();
+  const tab = context.normalizeTabs(createTabs(), false)[0];
+
+  assert.equal(
+    context.formatCustomTab(
+      tab,
+      "{{title}}\n{{url}}"
+    ),
+    "Example\nhttps://example.com"
+  );
+});
+
+test("カスタム形式で同じプレースホルダーを複数回置換する", () => {
+  const { context } = createPopupContext();
+  const tab = context.normalizeTabs(createTabs(), false)[0];
+
+  assert.equal(
+    context.formatCustomTab(
+      tab,
+      "{{title}} - {{title}}"
+    ),
+    "Example - Example"
+  );
+});
+
+test("カスタム形式で複数行と複数タブを維持する", () => {
+  const { context } = createPopupContext();
+  const tabs = context.normalizeTabs(createTabs(), false);
+
+  assert.equal(
+    context.formatCustom(
+      tabs,
+      "title={{title}}\nurl={{url}}"
+    ),
+    [
+      "title=Example\nurl=https://example.com",
+      "title=Chrome\nurl=chrome://extensions"
+    ].join("\n")
+  );
+});
+
+test("カスタム形式で未知のプレースホルダーをそのまま残す", () => {
+  const { context } = createPopupContext();
+  const tab = createTabs()[0];
+
+  assert.equal(
+    context.formatCustomTab(
+      tab,
+      "{{unknown}}: {{url}}"
+    ),
+    "{{unknown}}: https://example.com"
+  );
+});
+
+test("カスタム形式で空のテンプレートから空の出力を生成する", () => {
+  const { context } = createPopupContext();
+
+  assert.equal(
+    context.formatTabs(createTabs(), "custom", ""),
+    ""
+  );
+});
+
+test("カスタム形式では値を自動エスケープしない", () => {
+  const { context } = createPopupContext();
+  const tabs = [{
+    title: "Example [A]",
+    url: "https://example.com?a=1&b=2",
+    pinned: false,
+    windowId: 1,
+    index: 0
+  }];
+
+  assert.equal(
+    context.formatTabs(
+      tabs,
+      "custom",
+      "[{{title}}]({{url}})"
+    ),
+    "[Example [A]](https://example.com?a=1&b=2)"
+  );
+});
+
+test("カスタム形式を選択した場合だけテンプレート欄を表示する", async () => {
+  const popup = createPopupContext();
+
+  await popup.settle();
+  assert.equal(
+    popup.getElement("#customTemplateField").hidden,
+    true
+  );
+  assert.equal(
+    popup.getElement("#resultText").classList.contains("compact"),
+    false
+  );
+
+  popup.getElement("#formatSelect").value = "custom";
+  popup.context.handleFormatChange();
+
+  assert.equal(
+    popup.getElement("#customTemplateField").hidden,
+    false
+  );
+  assert.equal(
+    popup.getElement("#resultText").classList.contains("compact"),
+    true
+  );
+
+  popup.getElement("#formatSelect").value = "url";
+  popup.context.handleFormatChange();
+  assert.equal(
+    popup.getElement("#customTemplateField").hidden,
+    true
+  );
+});
+
+test("カスタムテンプレートの入力内容を取得結果へ反映する", async () => {
+  const popup = createPopupContext({
+    tabs: [createTabs()[0]]
+  });
+
+  await popup.settle();
+  popup.getElement("#formatSelect").value = "custom";
+  popup.context.handleFormatChange();
+
+  const customTemplateInput = popup.getElement("#customTemplateInput");
+  customTemplateInput.value = "- {{title}}: {{url}}";
+  popup.context.handleCustomTemplateInput();
+
+  assert.equal(
+    popup.getElement("#resultText").value,
+    "- Example: https://example.com"
+  );
+  assert.equal(
+    JSON.parse(popup.calls.savedSettings).customTemplate,
+    "- {{title}}: {{url}}"
+  );
+});
+
+test("空のカスタム出力ではコピーボタンを無効にする", async () => {
+  const popup = createPopupContext({
+    tabs: [createTabs()[0]]
+  });
+
+  await popup.settle();
+  popup.getElement("#formatSelect").value = "custom";
+  popup.getElement("#customTemplateInput").value = "";
+  popup.context.handleFormatChange();
+
+  assert.equal(popup.getElement("#resultText").value, "");
+  assert.equal(
+    popup.getElement("#copyButton").disabled,
+    true
   );
 });
 

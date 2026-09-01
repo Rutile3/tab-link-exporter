@@ -31,6 +31,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-width: 440px;
@@ -102,6 +106,21 @@ h1 {
   font-size: 12px;
 }
 
+.custom-template-field {
+  grid-column: 1 / -1;
+}
+
+.custom-template-input {
+  height: 76px;
+  min-height: 54px;
+  resize: vertical;
+}
+
+.field-help {
+  color: var(--muted);
+  font-size: 11px;
+}
+
 select {
   width: 100%;
   min-height: 34px;
@@ -160,6 +179,10 @@ textarea {
   font-size: 12px;
   line-height: 1.55;
   white-space: pre;
+}
+
+#resultText.compact {
+  height: 164px;
 }
 
 button:focus-visible,

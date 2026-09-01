@@ -25,11 +25,14 @@ const tabCount = getRequiredElement("#tabCount");
 const statusMessage = getRequiredElement("#statusMessage");
 const refreshButton = getRequiredElement("#refreshButton");
 const copyButton = getRequiredElement("#copyButton");
+const customTemplateField = getRequiredElement("#customTemplateField");
+const customTemplateInput = getRequiredElement("#customTemplateInput");
 
 /** @type {NormalizedTab[]} */
 let currentTabs = [];
 
 const SETTINGS_KEY = "tabLinkExporterSettings";
+const DEFAULT_CUSTOM_TEMPLATE = "{{title}}\n{{url}}";
 
 /**
  * Chromeから取得したタブ情報。
@@ -58,8 +61,9 @@ const SETTINGS_KEY = "tabLinkExporterSettings";
  *
  * @typedef {Object} Settings
  * @property {"current"|"all"} scope タブの取得範囲
- * @property {"url"|"title-url"|"markdown"|"scrapbox"|"csv"|"json"} format 出力形式
+ * @property {"url"|"title-url"|"markdown"|"scrapbox"|"csv"|"json"|"custom"} format 出力形式
  * @property {boolean} webOnly Webページだけに絞り込むかどうか
+ * @property {string} customTemplate カスタムテンプレート
  */
 
 /**
@@ -81,7 +85,8 @@ function loadSettings() {
       "markdown",
       "scrapbox",
       "csv",
-      "json"
+      "json",
+      "custom"
     ]);
     if (formats.has(saved.format)) {
       formatSelect.value = saved.format;
@@ -89,6 +94,10 @@ function loadSettings() {
 
     if (typeof saved.webOnly === "boolean") {
       webOnlyCheckbox.checked = saved.webOnly;
+    }
+
+    if (typeof saved.customTemplate === "string") {
+      customTemplateInput.value = saved.customTemplate;
     }
   } catch {
     localStorage.removeItem(SETTINGS_KEY);
@@ -104,7 +113,8 @@ function getCurrentSettings() {
   return {
     scope: scopeSelect.value,
     format: formatSelect.value,
-    webOnly: webOnlyCheckbox.checked
+    webOnly: webOnlyCheckbox.checked,
+    customTemplate: customTemplateInput.value
   };
 }
 
@@ -287,13 +297,44 @@ function formatJson(tabs) {
 }
 
 /**
+ * 1件のタブ情報をカスタムテンプレートへ適用する。
+ *
+ * @param {NormalizedTab} tab 正規化済みのタブ情報
+ * @param {string} template カスタムテンプレート
+ * @returns {string} 置換済みの文字列
+ */
+function formatCustomTab(tab, template) {
+  return template
+    .replaceAll("{{title}}", tab.title)
+    .replaceAll("{{url}}", tab.url);
+}
+
+/**
+ * タブをカスタムテンプレートで整形する。
+ *
+ * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
+ * @param {string} template カスタムテンプレート
+ * @returns {string} 改行で連結した整形済みの文字列
+ */
+function formatCustom(tabs, template) {
+  if (template.length === 0) {
+    return "";
+  }
+
+  return tabs
+    .map((tab) => formatCustomTab(tab, template))
+    .join("\n");
+}
+
+/**
  * 指定された出力形式に応じてタブを整形する。
  *
  * @param {NormalizedTab[]} tabs 正規化済みのタブ情報
  * @param {string} format 出力形式
+ * @param {string} [customTemplate=""] カスタムテンプレート
  * @returns {string} 整形済みの文字列
  */
-function formatTabs(tabs, format) {
+function formatTabs(tabs, format, customTemplate = "") {
   switch (format) {
     case "url": return formatUrl(tabs);
     case "title-url": return formatTitleUrl(tabs);
@@ -301,6 +342,7 @@ function formatTabs(tabs, format) {
     case "scrapbox": return formatScrapbox(tabs);
     case "csv": return formatCsv(tabs);
     case "json": return formatJson(tabs);
+    case "custom": return formatCustom(tabs, customTemplate);
     default: return formatUrl(tabs);
   }
 }
@@ -311,12 +353,16 @@ function formatTabs(tabs, format) {
  * @returns {void}
  */
 function render() {
-  const output = formatTabs(currentTabs, formatSelect.value);
+  const output = formatTabs(
+    currentTabs,
+    formatSelect.value,
+    customTemplateInput.value
+  );
   resultText.value = output;
   tabCount.textContent = `${currentTabs.length}件`;
 
   const hasResults = currentTabs.length > 0;
-  copyButton.disabled = !hasResults;
+  copyButton.disabled = !hasResults || output.length === 0;
 }
 
 /**
@@ -390,9 +436,32 @@ async function copyResult() {
  * @returns {void}
  */
 function handleFormatChange() {
+  updateCustomTemplateVisibility();
   saveSettings();
   render();
   setStatus(`${currentTabs.length}件を再整形しました。`);
+}
+
+/**
+ * カスタムテンプレートの入力内容を取得結果へ反映する。
+ *
+ * @returns {void}
+ */
+function handleCustomTemplateInput() {
+  saveSettings();
+  render();
+  setStatus(`${currentTabs.length}件を再整形しました。`);
+}
+
+/**
+ * 選択中の出力形式に応じてカスタムテンプレート欄を表示する。
+ *
+ * @returns {void}
+ */
+function updateCustomTemplateVisibility() {
+  const isCustom = formatSelect.value === "custom";
+  customTemplateField.hidden = !isCustom;
+  resultText.classList.toggle("compact", isCustom);
 }
 
 /**
@@ -404,10 +473,13 @@ function initialize() {
   scopeSelect.addEventListener("change", fetchTabs);
   webOnlyCheckbox.addEventListener("change", fetchTabs);
   formatSelect.addEventListener("change", handleFormatChange);
+  customTemplateInput.addEventListener("input", handleCustomTemplateInput);
   refreshButton.addEventListener("click", fetchTabs);
   copyButton.addEventListener("click", copyResult);
 
+  customTemplateInput.value = DEFAULT_CUSTOM_TEMPLATE;
   loadSettings();
+  updateCustomTemplateVisibility();
   fetchTabs();
 }
 

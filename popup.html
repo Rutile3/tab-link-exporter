@@ -36,7 +36,23 @@
           <option value="scrapbox">Scrapbox</option>
           <option value="csv">CSV</option>
           <option value="json">JSON</option>
+          <option value="custom">カスタム</option>
         </select>
+      </label>
+
+      <label id="customTemplateField" class="field custom-template-field" hidden>
+        <span>カスタムテンプレート</span>
+        <textarea
+          id="customTemplateInput"
+          class="custom-template-input"
+          rows="3"
+          spellcheck="false"
+          aria-describedby="customTemplateHelp"
+          placeholder="{{title}}&#10;{{url}}"
+        ></textarea>
+        <small id="customTemplateHelp" class="field-help">
+          利用可能: {{title}}, {{url}}
+        </small>
       </label>
 
       <label class="checkbox">
