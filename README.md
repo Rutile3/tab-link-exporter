@@ -16,7 +16,7 @@ Chromeで現在開いているタブのタイトルとURLを一覧化する、Ma
   - カスタムテンプレート
 - クリップボードへコピー
 - 最後に使用した設定とカスタムテンプレートをローカルに保存
-- [Googleフォーム](https://docs.google.com/forms/d/e/1FAIpQLSch4KYJ68lTU_qY-siJ0CaKtTxbBTfoRv2wZa7h2bpbm5bTTg/viewform?usp=pp_url&entry.1006266992=Tab+Link+Exporter)からフィードバックを送信
+- [Googleフォーム](https://docs.google.com/forms/d/e/1FAIpQLScsMys5wqqgyUW79F-B1XBrDl19tQJP19n8r40RsgwNLMXQxw/viewform?usp=pp_url&entry.1006266992=Tab+Link+Exporter)からフィードバックを送信
 - [OFUSE](https://ofuse.me/rutile3)から開発者を応援
 
 ## インストール方法
