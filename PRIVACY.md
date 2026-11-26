@@ -77,4 +77,4 @@ The use of information received from Chrome APIs will adhere to the Chrome Web S
 
 ## 11. お問い合わせ
 
-本プライバシーポリシーまたは本拡張機能に関するお問い合わせは、[フィードバックフォーム](https://docs.google.com/forms/d/e/1FAIpQLSch4KYJ68lTU_qY-siJ0CaKtTxbBTfoRv2wZa7h2bpbm5bTTg/viewform?usp=pp_url&entry.1006266992=Tab+Link+Exporter)からご連絡ください。
+本プライバシーポリシーまたは本拡張機能に関するお問い合わせは、[フィードバックフォーム](https://docs.google.com/forms/d/e/1FAIpQLScsMys5wqqgyUW79F-B1XBrDl19tQJP19n8r40RsgwNLMXQxw/viewform?usp=pp_url&entry.1006266992=Tab+Link+Exporter)からご連絡ください。
