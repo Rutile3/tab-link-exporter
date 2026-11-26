@@ -94,11 +94,13 @@ node --test .\tests\popup.test.js
 
 `tests/` は開発用ファイルであり、配布用ZIPには含まれません。配布用ZIPを作成する前に、自動テストとChrome上での手動確認を実施してください。
 
-## 開発計画
+## 開発タスクと変更記録
 
-カスタム出力形式の実装範囲、コミット計画、テスト項目、更新対象文書は、[カスタム出力形式 実装TODO](docs/custom_output_format_todo.md)で管理しています。
+- 改修タスクや不具合は [GitHub Issues](https://github.com/Rutile3/tab-link-exporter/issues) で管理します。
+- 変更内容と確認結果は、関連 Issue を添えて [プルリクエスト](https://github.com/Rutile3/tab-link-exporter/pulls) に記録します。
+- 配布バージョンごとの利用者向け変更は [GitHub Releases](https://github.com/Rutile3/tab-link-exporter/releases) に記録します。
 
-TODOにはバージョン1.4.0の実装進捗とリリース前の確認項目を記録しています。
+これまでの記録は [追加仕様履歴](docs/spec_additions.md)、[仕様変更履歴](docs/spec_changes.md)、[バグ修正履歴](docs/bug_fixes.md) に保存しています。
 
 ## Chrome Web Store用アセット
 
@@ -137,8 +139,7 @@ tab-link-exporter/
 ├─ docs/
 │  ├─ spec_additions.md
 │  ├─ spec_changes.md
-│  ├─ bug_fixes.md
-│  └─ custom_output_format_todo.md
+│  └─ bug_fixes.md
 ├─ icons/
 │  ├─ icon16.png
 │  ├─ icon32.png
